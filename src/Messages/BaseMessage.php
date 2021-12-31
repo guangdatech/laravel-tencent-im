@@ -13,6 +13,8 @@ abstract class BaseMessage
     {
         $this->from = $from;
         $this->to = $to;
+
+        return $this;
     }
 
     public function getContent(): array
