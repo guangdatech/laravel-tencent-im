@@ -11,6 +11,7 @@ class TextMessage extends BaseMessage
     public function set($text)
     {
         $this->text = $text;
+        return $this;
     }
 
     public function getContent(): array

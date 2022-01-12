@@ -44,23 +44,31 @@ class MessageService extends BaseService
      */
     public function send($message)
     {
-        $res = $this->client->post('v4/openim/sendmsg', [
-            'query' => $this->getQueries(),
-            'json' => [
-                'SyncOtherMachine' => $message->syncOtherMachine,
-                'From_Account' => $message->from,
-                'To_Account' => $message->to,
-                'MsgLifeTime' => 60 * 60 * 24 * 7,
-                // 'MsgSeq' => time(),
-                'MsgRandom' => time(),
-                // 'MsgTimeStamp' => time(),
-                'MsgBody' => [
-                    [
-                        "MsgType" => $message->type,
-                        "MsgContent" => $message->getContent(),
-                    ]
+        $json = [
+            'SyncOtherMachine' => $message->syncOtherMachine,
+            'From_Account' => $message->from,
+            'To_Account' => $message->to,
+            'MsgLifeTime' => 60 * 60 * 24 * 7,
+            // 'MsgSeq' => time(),
+            'MsgRandom' => time(),
+            // 'MsgTimeStamp' => time(),
+            'MsgBody' => [
+                [
+                    "MsgType" => $message->type,
+                    "MsgContent" => $message->getContent(),
                 ],
             ],
+        ];
+
+        // 离线推送
+        $offline = $message->getOffline();
+        if ($offline) {
+            $json['OfflinePushInfo'] = $offline;
+        }
+
+        $res = $this->client->post('v4/openim/sendmsg', [
+            'query' => $this->getQueries(),
+            'json' => $json,
         ]);
 
         $json = (string)$res->getBody();
