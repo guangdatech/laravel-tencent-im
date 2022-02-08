@@ -34,4 +34,58 @@ class AccountService extends BaseService
         $json = json_decode($json, true);
         return $json['ActionStatus'] == 'OK';
     }
+
+    /**
+     * 设置用户资料
+     * @param string $account
+     * @param array $items
+     * @return bool
+     */
+    public function setProfile(string $account, array $items)
+    {
+        $res = $this->client->post('v4/profile/portrait_set', [
+            'query' => $this->getQueries(),
+            'json' => [
+                'From_Account' => $account,
+                'ProfileItem' => $items,
+            ],
+        ]);
+
+        $json = (string)$res->getBody();
+        $json = json_decode($json, true);
+        if ($json['ActionStatus'] == 'OK') {
+            return true;
+        }
+
+        throw new \Exception($json['ErrorInfo']);
+    }
+
+    /**
+     * 查询帐号
+     * https://cloud.tencent.com/document/product/269/38417
+     * @param $account
+     * @return array
+     */
+    public function getProfile($account): array
+    {
+        $res = $this->client->post('v4/profile/portrait_get', [
+            'query' => $this->getQueries(),
+            'json' => [
+                'To_Account' => [$account],
+                'TagList' => [
+                    'Tag_Profile_IM_Nick',
+                    'Tag_Profile_Custom_Account',
+                ],
+            ],
+        ]);
+
+        $json = (string)$res->getBody();
+        $json = json_decode($json, true);
+
+        if ($json['ActionStatus'] != 'OK') {
+            throw new \Exception($json['ErrorInfo'], $json['ErrorCode']);
+        }
+
+        return $json['UserProfileItem'][0]['ProfileItem'];
+    }
 }
