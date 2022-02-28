@@ -11,6 +11,8 @@
 
 namespace Guangda\Tencent\IM\Services;
 
+use Illuminate\Support\Facades\Log;
+
 /**
  * 消息相关
  * Class MessageService
@@ -66,7 +68,13 @@ class MessageService extends BaseService
             $json['OfflinePushInfo'] = $offline;
         }
 
-        $res = $this->client->post('v4/openim/sendmsg', [
+        if (is_array($message->to)) {
+            $url = 'v4/openim/batchsendmsg';
+        } else {
+            $url = 'v4/openim/sendmsg';
+        }
+
+        $res = $this->client->post($url, [
             'query' => $this->getQueries(),
             'json' => $json,
         ]);
