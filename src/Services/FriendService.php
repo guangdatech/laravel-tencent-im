@@ -38,4 +38,18 @@ class FriendService extends BaseService
         $json = json_decode($json, true);
         return $json['ActionStatus'] == 'OK';
     }
+
+    public function deleteAll(string $timUserId)
+    {
+        $res = $this->client->post('v4/sns/friend_delete_all', [
+            'query' => $this->getQueries(),
+            'json' => [
+                'From_Account' => $timUserId,
+            ],
+        ]);
+
+        $json = (string)$res->getBody();
+        $json = json_decode($json, true);
+        return $json['ActionStatus'] == 'OK';
+    }
 }

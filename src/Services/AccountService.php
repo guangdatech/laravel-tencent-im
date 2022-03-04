@@ -32,7 +32,11 @@ class AccountService extends BaseService
 
         $json = (string)$res->getBody();
         $json = json_decode($json, true);
-        return $json['ActionStatus'] == 'OK';
+        if ($json['ActionStatus'] == 'OK') {
+            return true;
+        }
+
+        throw new \Exception($json['ErrorInfo']);
     }
 
     /**
