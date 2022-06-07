@@ -24,6 +24,34 @@ class GroupService extends BaseService
 
         $json = (string)$res->getBody();
         $json = json_decode($json, true);
-        return $json['ActionStatus'] == 'OK';
+        if ($json['ActionStatus'] == 'OK') {
+            return true;
+        }
+
+        throw new \Exception($json['ErrorInfo']);
+    }
+
+    public function info(string $groupId): array
+    {
+        $res = $this->client->post('v4/group_open_http_svc/get_group_info', [
+            'query' => $this->getQueries(),
+            'json' => [
+                'GroupIdList' => [$groupId],
+            ],
+        ]);
+
+        $json = (string)$res->getBody();
+        $json = json_decode($json, true);
+        if ($json['ActionStatus'] != 'OK') {
+            throw new \Exception($json['ErrorInfo']);
+        }
+
+        $group = $json['GroupInfo'][0];
+
+        if ($group['ErrorCode'] != 0) {
+            throw new \Exception($group['ErrorInfo']);
+        }
+
+        return $group;
     }
 }
