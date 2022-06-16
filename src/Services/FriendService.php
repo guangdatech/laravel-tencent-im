@@ -29,14 +29,18 @@ class FriendService extends BaseService
             'json' => [
                 'From_Account' => $fromTimUserId,
                 'AddFriendItem' => $friends,
-                'AddType' => 'Add_Type_Both',
+                // 'AddType' => 'Add_Type_Both',
                 'ForceAddFlags' => 1,
             ],
         ]);
 
         $json = (string)$res->getBody();
         $json = json_decode($json, true);
-        return $json['ActionStatus'] == 'OK';
+        if ($json['ActionStatus'] == 'OK') {
+            return true;
+        }
+
+        throw new \Exception($json['ErrorInfo']);
     }
 
     public function deleteAll(string $timUserId)
