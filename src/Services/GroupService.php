@@ -54,4 +54,32 @@ class GroupService extends BaseService
 
         return $group;
     }
+
+    /**
+     * 发送群系统通知
+     * @param string $groupId
+     * @param array $timUserIds
+     * @param string $text
+     * @return bool
+     * @throws \Exception
+     */
+    public function sendSystemNotification(string $groupId, array $timUserIds, string $text): bool
+    {
+        $res = $this->client->post('v4/group_open_http_svc/send_group_system_notification', [
+            'query' => $this->getQueries(),
+            'json' => [
+                'GroupId' => $groupId,
+                'Content' => $text,
+                'ToMembers_Account' => $timUserIds,
+            ],
+        ]);
+
+        $json = (string)$res->getBody();
+        $json = json_decode($json, true);
+        if ($json['ActionStatus'] == 'OK') {
+            return true;
+        }
+
+        throw new \Exception($json['ErrorInfo']);
+    }
 }
